@@ -1,0 +1,61 @@
+# INPUTS BOOLEAN
+
+input_boolean:
+
+  # switches
+  switches_batteries_card:
+    name: pulsanti
+    initial: off
+    icon: mdi:battery
+
+
+  # sensors
+  sensors_batteries_card:
+    name: sensori
+    initial: off
+    icon: mdi:battery
+
+
+# INPUTS SELECT
+
+input_select:
+
+  # ZigBee sensors & switches batteries
+  zigbee_batteries_cards:
+    name: batterie di pulsanti e sensori ZigBee
+    icon: mdi:battery
+    options:
+      - ❌ nascondi tutto
+      - 🌐 mostra tutto
+      - pulsanti
+      - sensori
+
+
+# GROUPS
+
+group:
+
+  # ZigBee batteries cards
+  zigbee_batteries_cards:
+    name: ZigBee batteries cards
+    entities:
+      - input_boolean.switches_batteries_card
+      - input_boolean.sensors_batteries_card
+    all: false
+
+
+# AUTOMATIONS
+
+automation:
+
+  # ZigBee batteries panel
+  - id: system-zigbee_batteries_card_selector
+    alias: "[system] ZigBee batteries card selector"
+    description: "Selezione della card delle batterie dei dispositivi ZigBee"
+    initial_state: true
+    use_blueprint:
+      path: system/card_selector.yaml
+      input:
+        mode: input_select.zigbee_batteries_cards
+        entities:
+          entity_id: group.zigbee_batteries_cards
