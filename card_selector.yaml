@@ -1,0 +1,78 @@
+################################
+#        CARD SELECTOR         #
+################################
+
+
+
+# A blueprint plus his package with input_select, input_boolean and automation to show or hide all or specific cards in a view of the Home Assistant frontend, where are defined a selector with more options and two or more cards to hide or show.
+#
+# Link with explanation (only Italian for now) on Spectrum:
+# https://spectrum.chat/indomus/home-assistant/blueprint-mini-guida-alluso-progetto~a5cc2a6c-79ab-485e-b5d4-bf06a2f26072
+
+
+
+
+# DEFINITION
+
+blueprint:
+  name: "[system] panels & cards selector"
+  description: "Selezione di pannelli e card della vista"
+  domain: automation
+  input:
+    mode:
+      name: mode
+      description: selected mode
+      selector:
+        entity:
+          domain: input_select
+    entities:
+      name: panels or cards
+      description: panels/cards to show/hide
+      selector:
+        target:
+          entity:
+            domain: group
+    # show:
+    #   name: panels or cards
+    #   description: panels/cards to show/hide
+    #   default: "{{ 'input_boolean.' + (states(trigger.to_state.state | replace(' ', '_'))) }}"
+    #   selector:
+    #     target:
+    #       entity:
+    #         domain: input_boolean
+
+
+# AUTOMATION
+
+mode: single
+variables:
+  show: "{{ 'input_boolean.' + (states(trigger.to_state.state | replace(' ', '_'))) }}"
+
+trigger:
+  - platform: state
+    entity_id: !input mode
+
+action:
+  - choose:
+      # MODE (0): hide all (reset view)
+      - conditions: "{{ is_state(trigger.entity_id, '❌ nascondi tutto') or is_state(trigger.entity_id, 'nessuna selezione') }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input entities
+      # MODE (1): show all
+      - conditions: "{{ is_state(trigger.entity_id, '🌐 mostra tutto') }}"
+        sequence:
+          - service: homeassistant.turn_on
+            target: !input entities
+      # MODE (2): show selection
+      - conditions: "{{ is_state(trigger.entity_id, trigger.to_state.state) }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input entities
+          - service: homeassistant.turn_on
+            data:
+              entity_id: >
+                {% set booleans = states.input_boolean | selectattr('name', 'defined') | list %}
+                {% for boolean in booleans %}
+                  {{ boolean.entity_id if boolean.name == trigger.to_state.state }}
+                {% endfor %}
