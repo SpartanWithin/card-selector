@@ -33,7 +33,6 @@ blueprint:
             domain: group
 
 
-
 # AUTOMATION
 
 mode: single
