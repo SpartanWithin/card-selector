@@ -37,8 +37,6 @@ blueprint:
 # AUTOMATION
 
 mode: single
-variables:
-  show: "{{ 'input_boolean.' + (states(trigger.to_state.state | replace(' ', '_'))) }}"
 
 trigger:
   - platform: state
