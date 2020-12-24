@@ -2,6 +2,7 @@
 
 input_boolean:
 
+
   # switches
   switches_batteries_card:
     name: pulsanti
@@ -16,9 +17,11 @@ input_boolean:
     icon: mdi:battery
 
 
+
 # INPUTS SELECT
 
 input_select:
+
 
   # ZigBee sensors & switches batteries
   zigbee_batteries_cards:
@@ -31,9 +34,11 @@ input_select:
       - sensori
 
 
+
 # GROUPS
 
 group:
+
 
   # ZigBee batteries cards
   zigbee_batteries_cards:
@@ -44,9 +49,11 @@ group:
     all: false
 
 
+
 # AUTOMATIONS
 
 automation:
+
 
   # ZigBee batteries panel
   - id: system-zigbee_batteries_card_selector
