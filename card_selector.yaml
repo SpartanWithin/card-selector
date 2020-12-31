@@ -60,8 +60,23 @@ action:
             target: !input entities
           - service: homeassistant.turn_on
             data:
+              # first basic version:
+              # entity_id: "{{ 'input_boolean.' + 'card_' + (trigger.to_state.state | replace(' ', '_')) }}"
+              #
+              # second (looonger) version, without control on entities in group with same selector name:
+              # entity_id: >
+              #   {% set booleans = states.input_boolean | selectattr('name', 'defined') | list %}
+              #   {% for boolean in booleans %}
+              #   {{- boolean.entity_id ~ (", " if not loop.last) if boolean.name == trigger.to_state.state }}
+              #   {% endfor %}
+              #
+              # third (final?) version:
               entity_id: >
-                {% set booleans = states.input_boolean | selectattr('name', 'defined') | list %}
-                {% for boolean in booleans %}
-                  {{ boolean.entity_id if boolean.name == trigger.to_state.state }}
-                {% endfor %}
+                {# this search all entities (input_booleans) with name equal to selected voice in the selector (input_select) passed as trigger only if the entity is in a group with the same name of the selector #}
+                {{ states.input_boolean |
+                  selectattr('name', 'defined') |
+                  selectattr('name', 'eq', trigger.to_state.state) |
+                  selectattr('entity_id', 'in', state_attr(trigger.entity_id|replace('input_select', 'group'),'entity_id')) |
+                  map(attribute='entity_id') |
+                  list
+                }}
